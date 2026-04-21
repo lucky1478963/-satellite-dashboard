@@ -3,3 +3,4 @@ requests
 pymysql
 streamlit-autorefresh
 pandas
+matplotlib
