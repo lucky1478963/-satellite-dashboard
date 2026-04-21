@@ -34,7 +34,7 @@ if not st.session_state.logged_in:
 st.title("🛰️ Satellite Organization Monitoring System")
 
 # -------- SIMULATION --------
-if st.button("🚀 Simulate Alert"):
+if st.button("Simulate Alert"):
     msgs = [
         "Satellite communication failed",
         "Battery level low",
