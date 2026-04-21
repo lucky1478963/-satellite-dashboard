@@ -9,7 +9,7 @@ st.set_page_config(page_title="Organization System", layout="wide")
 API_SEND = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/send-message"
 API_GET  = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/get-message"
 
-st_autorefresh(interval=10000, key="refresh")
+st_autorefresh(interval=5000, key="refresh")
 
 # -------- LOGIN --------
 if "logged_in" not in st.session_state:
