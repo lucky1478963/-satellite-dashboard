@@ -1,3 +1,8 @@
+import streamlit as st
+import requests
+import pandas as pd
+import random
+from streamlit_autorefresh import st_autorefresh
 st.markdown("""
 <style>
 body {
@@ -72,11 +77,6 @@ ax.pie(
     autopct='%1.1f%%'
 )
 st.pyplot(fig)
-import streamlit as st
-import requests
-import pandas as pd
-import random
-from streamlit_autorefresh import st_autorefresh
 
 API_SEND = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/send-message"
 API_GET  = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/get-message"
