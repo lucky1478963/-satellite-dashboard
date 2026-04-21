@@ -47,6 +47,7 @@ if st.button("Simulate Alert"):
     msg = random.choice(msgs)
     requests.post(API_SEND, json={"message": msg})
     st.success("Alert Generated")
+    st.rerun()
 
 # -------- FETCH --------
 res = requests.get(API_GET)
