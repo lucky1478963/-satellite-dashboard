@@ -1,0 +1,5 @@
+streamlit
+requests
+pymysql
+streamlit-autorefresh
+pandas
