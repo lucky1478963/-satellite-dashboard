@@ -12,7 +12,7 @@ st.set_page_config(page_title="Satellite System", layout="wide")
 st.markdown("""
 <style>
 .stApp {
-    background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa");
+    background-image: url("https://images.unsplash.com/photo-1451187580459-43490279c0fa");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
