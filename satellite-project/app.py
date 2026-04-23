@@ -52,6 +52,9 @@ if st.button("Simulate Alert"):
 # -------- FETCH --------
 res = requests.get(API_GET)
 
+st.write("STATUS CODE:", res.status_code)
+st.write("RAW RESPONSE:", res.text)
+
 if res.status_code == 200:
     messages = res.json()
 
