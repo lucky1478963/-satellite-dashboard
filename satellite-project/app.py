@@ -1,101 +1,112 @@
 import streamlit as st
 import requests
-import pandas as pd
+import json
 import random
 from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="Organization System", layout="wide")
+API = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com"
 
-API_SEND = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/send-message"
-API_GET  = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com/get-message"
+st.set_page_config(page_title="Satellite System", layout="wide")
 
-st_autorefresh(interval=5000, key="refresh")
+# ------------------ 🌌 BACKGROUND STYLE ------------------
+st.markdown("""
+<style>
+.stApp {
+    background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
 
-# -------- LOGIN --------
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+/* Glass effect cards */
+.card {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    color: white;
+}
 
-if not st.session_state.logged_in:
-    st.title("🔐 Organization Login")
+/* Title */
+.title {
+    text-align: center;
+    color: cyan;
+    font-size: 36px;
+    font-weight: bold;
+}
 
-    user = st.text_input("Username")
-    pwd = st.text_input("Password", type="password")
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: rgba(0,0,0,0.8);
+}
+</style>
+""", unsafe_allow_html=True)
 
-    if st.button("Login"):
-        if user == "admin" and pwd == "1234":
-            st.session_state.logged_in = True
-            st.rerun()
-        else:
-            st.error("Invalid login")
+# ------------------ HEADER ------------------
+st.markdown("<div class='title'>🛰️ Satellite Organization Monitoring System</div>", unsafe_allow_html=True)
+st.markdown("---")
 
-    st.stop()
+# ------------------ AUTO REFRESH ------------------
+st_autorefresh(interval=3000)
 
-# -------- UI --------
-st.title("🛰️ Satellite Organization Monitoring System")
+# ------------------ SIDEBAR ADMIN ------------------
+st.sidebar.title("⚙️ Admin Panel")
 
-# -------- SIMULATION --------
-if st.button("Simulate Alert"):
+admin = st.sidebar.checkbox("Enable Admin")
+
+if admin:
+    st.sidebar.subheader("Add Rule")
+
+    k = st.sidebar.text_input("Keyword")
+    p = st.sidebar.selectbox("Priority", ["HIGH", "MEDIUM", "LOW"])
+    t = st.sidebar.number_input("Auto Resolve Time", 1, 60)
+
+    if st.sidebar.button("Add Rule"):
+        requests.post(API + "/send-message", json={
+            "type": "rule",
+            "keyword": k,
+            "priority": p,
+            "time": t
+        })
+        st.sidebar.success("Rule Added")
+
+# ------------------ SIMULATION ------------------
+if st.button("🚀 Simulate Alert"):
     msgs = [
         "Satellite communication failed",
         "Battery level low",
-        "Orbit deviation detected",
-        "Signal lost from satellite",
         "Temperature warning",
-        "System running normally"
+        "Orbit deviation detected"
     ]
-
     msg = random.choice(msgs)
-    requests.post(API_SEND, json={"message": msg})
+
+    requests.post(API + "/send-message", json={"message": msg})
     st.success("Alert Generated")
     st.rerun()
 
-# -------- FETCH --------
-res = requests.get(API_GET)
-
-st.write("STATUS CODE:", res.status_code)
-st.write("RAW RESPONSE:", res.text)
+# ------------------ FETCH DATA ------------------
+res = requests.get(API + "/get-message")
 
 if res.status_code == 200:
-    messages = res.json()
+    data = res.json()
 
-    high = medium = low = 0
+    if isinstance(data, dict) and "body" in data:
+        messages = json.loads(data["body"])
+    else:
+        messages = data
+
+    st.subheader("📡 Live Alerts")
 
     for m in messages:
-        if m["priority"] == "HIGH":
-            high += 1
-        elif m["priority"] == "MEDIUM":
-            medium += 1
-        else:
-            low += 1
-
-    # -------- STATS --------
-    c1, c2, c3 = st.columns(3)
-    c1.metric("🚨 High", high)
-    c2.metric("⚠️ Medium", medium)
-    c3.metric("ℹ️ Low", low)
-
-    st.markdown("---")
-
-    # -------- DISPLAY --------
-    for m in messages:
-        color = "red" if m["priority"]=="HIGH" else "orange" if m["priority"]=="MEDIUM" else "green"
+        color = "#ff4b4b" if m["priority"]=="HIGH" else "#ffa500" if m["priority"]=="MEDIUM" else "#28a745"
 
         st.markdown(f"""
-        <div style='background:#222;padding:10px;border-radius:8px;margin-bottom:10px;color:white;'>
-        <b>[{m['department']}]</b> {m['message']}<br>
-        Priority: {m['priority']} |
-        Status: <span style='color:{color}'>{m['status']}</span><br>
-        ⏰ {m['time']}
+        <div class="card" style="border-left: 6px solid {color};">
+            <b>[{m['department']}]</b> {m['message']}<br>
+            Priority: {m['priority']} | Status: {m['status']}<br>
+            ⏰ {m['time']}
         </div>
         """, unsafe_allow_html=True)
 
-    # -------- CHART --------
-    df = pd.DataFrame({
-        "Priority": ["HIGH","MEDIUM","LOW"],
-        "Count": [high, medium, low]
-    })
-
-    st.bar_chart(df.set_index("Priority"))
-
 else:
-    st.error("API error")
+    st.error("❌ API Error")
