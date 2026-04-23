@@ -6,50 +6,14 @@ from streamlit_autorefresh import st_autorefresh
 
 API = "https://49tvo7zd99.execute-api.ap-south-1.amazonaws.com"
 
-st.set_page_config(page_title="Satellite System", layout="wide")
+st.set_page_config(layout="wide")
 
-# ------------------ 🌌 BACKGROUND STYLE ------------------
-st.markdown("""
-<style>
-.stApp {
-    background-image: url("https://images.unsplash.com/photo-1451187580459-43490279c0fa");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}
+st.title("🛰️ Satellite Organization Monitoring System")
 
-/* Glass effect cards */
-.card {
-    background: rgba(0, 0, 0, 0.6);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    color: white;
-}
-
-/* Title */
-.title {
-    text-align: center;
-    color: cyan;
-    font-size: 36px;
-    font-weight: bold;
-}
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background-color: rgba(0,0,0,0.8);
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ------------------ HEADER ------------------
-st.markdown("<div class='title'>🛰️ Satellite Organization Monitoring System</div>", unsafe_allow_html=True)
-st.markdown("---")
-
-# ------------------ AUTO REFRESH ------------------
+# AUTO REFRESH
 st_autorefresh(interval=3000)
 
-# ------------------ SIDEBAR ADMIN ------------------
+# -------- ADMIN PANEL --------
 st.sidebar.title("⚙️ Admin Panel")
 
 admin = st.sidebar.checkbox("Enable Admin")
@@ -70,7 +34,7 @@ if admin:
         })
         st.sidebar.success("Rule Added")
 
-# ------------------ SIMULATION ------------------
+# -------- SIMULATION --------
 if st.button("🚀 Simulate Alert"):
     msgs = [
         "Satellite communication failed",
@@ -84,7 +48,7 @@ if st.button("🚀 Simulate Alert"):
     st.success("Alert Generated")
     st.rerun()
 
-# ------------------ FETCH DATA ------------------
+# -------- FETCH --------
 res = requests.get(API + "/get-message")
 
 if res.status_code == 200:
@@ -95,18 +59,16 @@ if res.status_code == 200:
     else:
         messages = data
 
-    st.subheader("📡 Live Alerts")
-
     for m in messages:
-        color = "#ff4b4b" if m["priority"]=="HIGH" else "#ffa500" if m["priority"]=="MEDIUM" else "#28a745"
+        color = "red" if m["priority"]=="HIGH" else "orange" if m["priority"]=="MEDIUM" else "green"
 
         st.markdown(f"""
-        <div class="card" style="border-left: 6px solid {color};">
-            <b>[{m['department']}]</b> {m['message']}<br>
-            Priority: {m['priority']} | Status: {m['status']}<br>
-            ⏰ {m['time']}
+        <div style='background:{color};padding:10px;margin:5px;border-radius:8px;color:white;'>
+        <b>[{m['department']}]</b> {m['message']}<br>
+        Priority: {m['priority']} | Status: {m['status']}<br>
+        ⏰ {m['time']}
         </div>
         """, unsafe_allow_html=True)
 
 else:
-    st.error("❌ API Error")
+    st.error("API Error")
