@@ -35,7 +35,7 @@ if admin:
         st.sidebar.success("Rule Added")
 
 # -------- SIMULATION --------
-if st.button("🚀 Simulate Alert"):
+if st.button("Simulate Alert"):
     msgs = [
         "Satellite communication failed",
         "Battery level low",
